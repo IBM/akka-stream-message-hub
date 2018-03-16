@@ -61,13 +61,16 @@ object Publisher {
 }
 
 class Publisher(kafkaBrokers: String, user: String, password: String) {
+  private val producerConfig = KafkaConfigFactory.load().getConfig("akka.kafka.producer")
+
   val producerSettings: ProducerSettings[String, String] =
     ProducerSettings(producerConfig, new StringSerializer, new StringSerializer)
       .withBootstrapServers(kafkaBrokers)
       .withProperty(SaslConfigs.SASL_JAAS_CONFIG, MessageHub.createJaasConfigContent(user, password))
+
   val kafkaProducer: KafkaProducer[String, String] = producerSettings.createKafkaProducer()
+
   val producerSink: Sink[ProducerRecord[String, String], Future[Done]] = Producer.plainSink(producerSettings, kafkaProducer)
-  private val producerConfig = KafkaConfigFactory.load().getConfig("akka.kafka.producer")
 
   def publish(topic: String, msg: JsObject)
              (implicit ec: ExecutionContext,
@@ -136,13 +139,15 @@ object Subscriber {
 }
 
 class Subscriber(kafkaBrokers: String, user: String, password: String, consumerGroup: String, offset: String = "earliest") {
+
+  private val consumerConfig = KafkaConfigFactory.load().getConfig("akka.kafka.consumer")
+  private val logger = LoggerFactory.getLogger(this.getClass)
+
   val consumerSettings: ConsumerSettings[String, String] = ConsumerSettings(consumerConfig, new StringDeserializer, new StringDeserializer)
     .withBootstrapServers(kafkaBrokers)
     .withProperty(SaslConfigs.SASL_JAAS_CONFIG, MessageHub.createJaasConfigContent(user, password))
     .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offset)
     .withGroupId(consumerGroup)
-  private val consumerConfig = KafkaConfigFactory.load().getConfig("akka.kafka.consumer")
-  private val logger = LoggerFactory.getLogger(this.getClass)
 
   def subscribe(settings: SubscriberSettings, topics: String*)
                (fn: (ConsumerRecord[String, String]) => Future[Done])

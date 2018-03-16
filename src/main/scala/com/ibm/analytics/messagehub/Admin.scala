@@ -1,6 +1,6 @@
 package com.ibm.analytics.messagehub
 
-import com.typesafe.scalalogging.slf4j.Logger
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.http.HttpException
 import org.apache.http.client.methods.{HttpDelete, HttpGet, HttpPost}
 import org.apache.http.client.utils.URIBuilder
@@ -8,7 +8,6 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.{CloseableHttpClient, HttpClients}
 import org.apache.http.util.EntityUtils
-import org.slf4j.LoggerFactory
 import spray.json.DefaultJsonProtocol._
 import spray.json._
 
@@ -30,8 +29,7 @@ object Admin {
   def create(vcap: JsObject): Try[Admin] = MessageHub.VCAP.parse(vcap).map { vcap => Admin(vcap) }
 }
 
-class Admin(adminUrl: String, serviceKey: String) {
-  private lazy val logger = Logger(LoggerFactory.getLogger(this.getClass))
+class Admin(adminUrl: String, serviceKey: String) extends LazyLogging {
 
   def createTopic(name: String, retentionMs: Long = 86400000, partitions: Int = 1, replication: Int = 3): Try[String] = {
     val address = s"$adminUrl/admin/topics"
