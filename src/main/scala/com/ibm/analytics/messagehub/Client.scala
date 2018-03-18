@@ -45,7 +45,6 @@ object MessageHub {
 
     def parse(vcap: JsObject): Try[VCAP] = Try(vcap.convertTo[VCAP]).recoverWith(recoverDeserializationException)
   }
-
 }
 
 object Publisher {
