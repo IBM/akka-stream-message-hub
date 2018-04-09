@@ -13,7 +13,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.11",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
-  "org.apache.httpcomponents" % "httpclient" % "4.5.4",
 
   "org.scalatest" %% "scalatest" % "3.0.4" % Test
 )

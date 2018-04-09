@@ -114,13 +114,23 @@ object Subscriber {
 
   def create(vcap: String, consumerGroup: String): Try[Subscriber] = MessageHub.VCAP.parse(vcap).map { vcap => Subscriber(vcap, consumerGroup) }
 
+  def create(vcap: String, consumerGroup: String, offset: String): Try[Subscriber] = MessageHub.VCAP.parse(vcap).map { vcap => Subscriber(vcap, consumerGroup, offset) }
+
   def create(vcap: JsObject, consumerGroup: String): Try[Subscriber] = MessageHub.VCAP.parse(vcap).map { vcap => Subscriber(vcap, consumerGroup) }
+
+  def apply(vcap: MessageHub.VCAP, consumerGroup: String, offset: String): Subscriber =
+    Subscriber(vcap.kafka_brokers_sasl, vcap.user, vcap.password, consumerGroup, offset)
 
   def apply(vcap: MessageHub.VCAP, consumerGroup: String): Subscriber =
     Subscriber(vcap.kafka_brokers_sasl, vcap.user, vcap.password, consumerGroup)
 
+  def apply(kafkaBrokers: Seq[String], user: String, password: String, consumerGroup: String, offset: String): Subscriber =
+    new Subscriber(kafkaBrokers.mkString(","), user, password, consumerGroup, offset)
+
   def apply(kafkaBrokers: Seq[String], user: String, password: String, consumerGroup: String): Subscriber =
     new Subscriber(kafkaBrokers.mkString(","), user, password, consumerGroup)
+
+  def create(vcap: JsObject, consumerGroup: String, offset: String): Try[Subscriber] = MessageHub.VCAP.parse(vcap).map { vcap => Subscriber(vcap, consumerGroup, offset) }
 
   def apply(kafkaBrokers: String, user: String, password: String, consumerGroup: String): Subscriber =
     new Subscriber(kafkaBrokers, user, password, consumerGroup)
