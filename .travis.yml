@@ -1,0 +1,4 @@
+group: bluezone
+script:
+  - ping -c 1 wml-dev.stage1.ng.bluemix.net
+  - curl -k https://wml-dev.stage1.ng.bluemix.net/heartbeat
