@@ -2,3 +2,4 @@ group: bluezone
 script:
   - ping -c 1 wml-dev.stage1.ng.bluemix.net
   - curl -k https://wml-dev.stage1.ng.bluemix.net/heartbeat
+  - curl -k https://169.47.107.157/heartbeat
