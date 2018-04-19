@@ -59,7 +59,7 @@ object Publisher {
   def apply(kafkaBrokers: String, user: String, password: String): Publisher = new Publisher(kafkaBrokers, user, password)
 }
 
-class Publisher(kafkaBrokers: String, user: String, password: String) {
+class Publisher[K, V](kafkaBrokers: String, user: String, password: String) {
   private val producerConfig = KafkaConfigFactory.load().getConfig("akka.kafka.producer")
 
   val producerSettings: ProducerSettings[String, String] =
