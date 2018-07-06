@@ -2,7 +2,7 @@ name := "akka-stream-message-hub"
 
 version := "0.1-SNAPSHOT"
 
-organization := "com.typesafe.akka"
+organization := "com.ibm"
 
 scalaVersion := "2.11.11"
 
