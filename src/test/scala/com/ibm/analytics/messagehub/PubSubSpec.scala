@@ -7,14 +7,14 @@ import akka.stream.scaladsl._
 import com.ibm.analytics.messagehub.Subscriber.SubscriberSettings
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpec}
 import spray.json.{JsNumber, JsObject}
 
 import scala.concurrent._
 import scala.concurrent.duration._
 
 
-class PubSubSpec extends WordSpec with Matchers with ScalaFutures {
+class PubSubSpec extends WordSpec with Matchers with ScalaFutures with BeforeAndAfterAll {
   implicit val system = ActorSystem("ml-kafka-client-test")
   implicit val materializer = ActorMaterializer()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
@@ -33,6 +33,11 @@ class PubSubSpec extends WordSpec with Matchers with ScalaFutures {
   var subscribtionResult: SubscriberResult = null
 
   implicit val akkaPatience = PatienceConfig(scaled(10 seconds), scaled(100 millis))
+
+  override def afterAll(): Unit = {
+    super.afterAll()
+    system.terminate().futureValue
+  }
 
   "Admin" should {
     "be created from VCAP" in {
