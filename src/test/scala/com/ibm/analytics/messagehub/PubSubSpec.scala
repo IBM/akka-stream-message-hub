@@ -4,6 +4,7 @@ import akka.Done
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl._
+import com.ibm.analytics.messagehub.Subscriber.SubscriberSettings
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.{Matchers, WordSpec}
@@ -29,6 +30,7 @@ class PubSubSpec extends WordSpec with Matchers with ScalaFutures {
   var admin: Admin = null
   var publisher: Publisher = null
   var subscriber: Subscriber = null
+  var subscribtionResult: SubscriberResult = null
 
   implicit val akkaPatience = PatienceConfig(scaled(10 seconds), scaled(100 millis))
 
@@ -75,7 +77,7 @@ class PubSubSpec extends WordSpec with Matchers with ScalaFutures {
       var count = 0
       val p = Promise[Int]()
 
-      subscriber.subscribe(topic) { _ =>
+      subscribtionResult = subscriber.subscribeWithKillSwitch(SubscriberSettings(), topic) { _ =>
         count += 1
         if (count == msgCount) {
           p success count
@@ -86,7 +88,8 @@ class PubSubSpec extends WordSpec with Matchers with ScalaFutures {
     }
 
     "stop listening" in {
-
+      subscribtionResult.killSwitch.shutdown()
+      subscribtionResult.future.futureValue
     }
   }
 
