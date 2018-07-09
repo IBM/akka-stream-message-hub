@@ -20,6 +20,8 @@ class PubSubSpec extends WordSpec with Matchers with ScalaFutures {
 
   /* MessageHub-MokshaTest (AA_KRK/dev) */
   val VCAP = scala.io.Source.fromURL(getClass.getResource("/messagehub.vcap")).mkString
+    .replaceAll("\\{\\{MH_APIKEY\\}\\}", sys.env("MH_APIKEY"))
+    .replaceAll("\\{\\{MH_PASSWORD\\}\\}", sys.env("MH_PASSWORD"))
 
   val topic = "ml-kafka-client-test-2"
   val msgTimeout = PatienceConfiguration.Timeout(600 seconds)

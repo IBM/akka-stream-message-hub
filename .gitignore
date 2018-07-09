@@ -1,6 +1,7 @@
 *.class
 *.log
 *.vcap
+mh_credentials.sh
 
 # sbt specific
 .cache

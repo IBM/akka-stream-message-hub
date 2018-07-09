@@ -1,15 +1,17 @@
 {
-  "mqlight_lookup_url": "https://mqlight-lookup-stage1.messagehub.services.us-south.bluemix.net/Lookup?serviceId=911b2ec2-8dee-4398-8db2-7b94265627a6",
-  "api_key": "a4TnkXk097qNsKAe9MZCvsXFepFM52FAUWik2fjqW26NcjTZ",
-  "kafka_admin_url": "https://kafka-admin-stage1.messagehub.services.us-south.bluemix.net:443",
-  "kafka_rest_url": "https://kafka-rest-stage1.messagehub.services.us-south.bluemix.net:443",
+  "__instance__": "message-hub-jun27-tests / Location:US South, Org:rafal.bigaj@pl.ibm.com, Space:staging",
+  "instance_id": "40055aea-4655-46dc-8243-7d3bdfb829a4",
+  "mqlight_lookup_url": "https://mqlight-lookup-prod01.messagehub.services.us-south.bluemix.net/Lookup?serviceId=40055aea-4655-46dc-8243-7d3bdfb829a4",
+  "api_key": "{{MH_APIKEY}}",
+  "kafka_admin_url": "https://kafka-admin-prod01.messagehub.services.us-south.bluemix.net:443",
+  "kafka_rest_url": "https://kafka-rest-prod01.messagehub.services.us-south.bluemix.net:443",
   "kafka_brokers_sasl": [
-    "kafka01-stage1.messagehub.services.us-south.bluemix.net:9093",
-    "kafka02-stage1.messagehub.services.us-south.bluemix.net:9093",
-    "kafka03-stage1.messagehub.services.us-south.bluemix.net:9093",
-    "kafka04-stage1.messagehub.services.us-south.bluemix.net:9093",
-    "kafka05-stage1.messagehub.services.us-south.bluemix.net:9093"
+    "kafka03-prod01.messagehub.services.us-south.bluemix.net:9093",
+    "kafka02-prod01.messagehub.services.us-south.bluemix.net:9093",
+    "kafka04-prod01.messagehub.services.us-south.bluemix.net:9093",
+    "kafka01-prod01.messagehub.services.us-south.bluemix.net:9093",
+    "kafka05-prod01.messagehub.services.us-south.bluemix.net:9093"
   ],
-  "user": "a4TnkXk097qNsKAe",
-  "password": "9MZCvsXFepFM52FAUWik2fjqW26NcjTZ"
+  "user": "3F7JoQA2GS9xVI5G",
+  "password": "{{MH_PASSWORD}}"
 }
