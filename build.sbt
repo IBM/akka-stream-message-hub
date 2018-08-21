@@ -1,5 +1,5 @@
+import sbtrelease.ReleaseStateTransformations._
 import sbtrelease._
-import ReleaseStateTransformations._
 import xerial.sbt.Sonatype._
 
 name := "akka-stream-message-hub"
@@ -29,8 +29,8 @@ developers := List(
 scalaVersion := "2.11.11"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.akka" %% "akka-stream" % "2.5.4",
-  "com.typesafe.akka" %% "akka-stream-kafka" % "0.18",
+  "com.typesafe.akka" %% "akka-stream" % "2.5.13",
+  "com.typesafe.akka" %% "akka-stream-kafka" % "0.22",
   "com.typesafe.akka" %% "akka-http" % "10.0.11",
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.11",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0",

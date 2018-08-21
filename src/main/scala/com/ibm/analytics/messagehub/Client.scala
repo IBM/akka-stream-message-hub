@@ -81,6 +81,11 @@ class Publisher(kafkaBrokers: String, user: String, password: String) {
               materializer: ActorMaterializer): Future[Done] = {
     source.runWith(producerSink)
   }
+
+  def close(): Unit = {
+    kafkaProducer.flush()
+    kafkaProducer.close()
+  }
 }
 
 case class SubscriberResult(private[messagehub] val _done: Promise[Done], private[messagehub] var _killSwitch: SharedKillSwitch, private[messagehub] var _sourceControl: Option[Consumer.Control] = None) {

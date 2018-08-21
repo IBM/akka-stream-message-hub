@@ -7,6 +7,7 @@
     </appender>
 
     <logger name="org.apache.kafka" level="INFO"/>
+    <logger name="org.apache.kafka.common.network.SslTransportLayer" level="ERROR"/>
 
     <root level="DEBUG">
         <appender-ref ref="stdout"/>
