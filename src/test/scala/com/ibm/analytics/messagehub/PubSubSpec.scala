@@ -45,7 +45,7 @@ class PubSubSpec extends WordSpec with Matchers with ScalaFutures with BeforeAnd
     }
 
     s"create topic $topic" in {
-      admin.createTopic(topic, 1 hour, 4).futureValue
+      admin.createTopic(topic, 1 hour, 1).futureValue
     }
 
     "should list topic" in {

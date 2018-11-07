@@ -58,7 +58,7 @@ object ClientCLI {
           println(s"Invalid MessageHub VCAP file '${args(0)}': ${exception.getMessage}")
       }
     } else {
-      println("Usage: java -jar ml-kafka-client-XXX.jar <VCAP file> <consumer-group> <topic1> <topic2> ...")
+      println("Usage: java -jar akka-stream-message-hub_XXX.jar <VCAP file> <consumer-group> <topic1> <topic2> ...")
     }
   }
 }

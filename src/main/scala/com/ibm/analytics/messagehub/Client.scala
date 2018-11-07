@@ -13,7 +13,7 @@ import com.ibm.analytics.messagehub.Subscriber.SubscriberSettings
 import com.typesafe.config.ConfigFactory
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord}
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
-import org.apache.kafka.common.config.SaslConfigs
+import org.apache.kafka.common.config.{SaslConfigs, SslConfigs}
 import org.apache.kafka.common.serialization.{StringDeserializer, StringSerializer}
 import org.slf4j.LoggerFactory
 import spray.json._
@@ -47,25 +47,69 @@ object MessageHub {
   }
 }
 
+case class TruststoreConfig(location: String, password: String) {
+  def toProperties: Map[String,String] = if (location.isEmpty) {
+    Map.empty
+  } else {
+    Map(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG -> location,
+      SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG -> password)
+  }
+}
+
+object TruststoreConfig {
+  private val config = ConfigFactory.load()
+
+  def load(): Option[TruststoreConfig] =
+    Try(config.getConfig("akka.event-streams.truststore")).toOption.map { tsConfig =>
+      TruststoreConfig(tsConfig.getString("location"), tsConfig.getString("password"))
+    }
+
+  def properties(maybeTruststoreConfig: Option[TruststoreConfig]): Map[String, String] = {
+    val truststoreConfig = maybeTruststoreConfig.orElse(load())
+    truststoreConfig.map(_.toProperties).getOrElse(Map.empty)
+  }
+}
+
 object Publisher {
   def create(vcap: String): Try[Publisher] = MessageHub.VCAP.parse(vcap).map { vcap => Publisher(vcap) }
 
+  def create(vcap: String, truststoreConfig: TruststoreConfig): Try[Publisher] =
+    MessageHub.VCAP.parse(vcap).map { vcap => Publisher(vcap, truststoreConfig) }
+
   def apply(vcap: MessageHub.VCAP): Publisher = Publisher(vcap.kafka_brokers_sasl, vcap.user, vcap.password)
 
-  def apply(kafkaBrokers: Seq[String], user: String, password: String): Publisher = new Publisher(kafkaBrokers.mkString(","), user, password)
+  def apply(vcap: MessageHub.VCAP, truststoreConfig: TruststoreConfig): Publisher =
+    Publisher(vcap.kafka_brokers_sasl, vcap.user, vcap.password, truststoreConfig)
+
+  def apply(kafkaBrokers: Seq[String], user: String, password: String): Publisher =
+    new Publisher(kafkaBrokers.mkString(","), user, password)
+
+  def apply(kafkaBrokers: Seq[String], user: String, password: String, truststoreConfig: TruststoreConfig): Publisher =
+    new Publisher(kafkaBrokers.mkString(","), user, password, Some(truststoreConfig))
 
   def create(vcap: JsObject): Try[Publisher] = MessageHub.VCAP.parse(vcap).map { vcap => Publisher(vcap) }
 
-  def apply(kafkaBrokers: String, user: String, password: String): Publisher = new Publisher(kafkaBrokers, user, password)
+  def create(vcap: JsObject, truststoreConfig: TruststoreConfig): Try[Publisher] =
+    MessageHub.VCAP.parse(vcap).map { vcap => Publisher(vcap, truststoreConfig) }
+
+  def apply(kafkaBrokers: String, user: String, password: String): Publisher =
+    new Publisher(kafkaBrokers, user, password)
+
+  def apply(kafkaBrokers: String, user: String, password: String, truststoreConfig: TruststoreConfig): Publisher =
+    new Publisher(kafkaBrokers, user, password, Some(truststoreConfig))
 }
 
-class Publisher(kafkaBrokers: String, user: String, password: String) {
+class Publisher(kafkaBrokers: String, user: String, password: String, maybeTruststoreConfig: Option[TruststoreConfig] = None) {
   private val producerConfig = KafkaConfigFactory.load().getConfig("akka.kafka.producer")
+
+  private val producerProperties = TruststoreConfig.properties(maybeTruststoreConfig) ++ Map(
+    SaslConfigs.SASL_JAAS_CONFIG -> MessageHub.createJaasConfigContent(user, password)
+  )
 
   val producerSettings: ProducerSettings[String, String] =
     ProducerSettings(producerConfig, new StringSerializer, new StringSerializer)
       .withBootstrapServers(kafkaBrokers)
-      .withProperty(SaslConfigs.SASL_JAAS_CONFIG, MessageHub.createJaasConfigContent(user, password))
+      .withProperties(producerProperties)
 
   val kafkaProducer: KafkaProducer[String, String] = producerSettings.createKafkaProducer()
 
@@ -102,26 +146,53 @@ object Subscriber {
   private val Millis = TimeUnit.MILLISECONDS
 
   private val Parallel: Int = Try {
-    config.getInt("ml-kafka-client.parallel")
+    config.getInt("akka.event-streams.parallel")
   } getOrElse 10
+
   private val CommitMaxRecords: Int = Try {
-    config.getInt("ml-kafka-client.commit.max-records")
+    config.getInt("akka.event-streams.commit.max-records")
   } getOrElse 50
+
   private val CommitDelay: FiniteDuration = Try {
-    FiniteDuration(config.getDuration("ml-kafka-client.commit.max-delay", Millis), Millis)
+    FiniteDuration(config.getDuration("akka.event-streams.commit.max-delay", Millis), Millis)
   } getOrElse 3.seconds
+
   private val AutoRestart: Boolean = Try {
-    config.getBoolean("ml-kafka-client.restart.auto")
+    config.getBoolean("akka.event-streams.restart.auto")
   } getOrElse true
+
   private val RestartDelay: FiniteDuration = Try {
-    FiniteDuration(config.getDuration("ml-kafka-client.restart.delay", Millis), Millis)
+    FiniteDuration(config.getDuration("akka.event-streams.restart.delay", Millis), Millis)
   } getOrElse 60.seconds
 
-  def create(vcap: String, consumerGroup: String): Try[Subscriber] = MessageHub.VCAP.parse(vcap).map { vcap => Subscriber(vcap, consumerGroup) }
+  Try(config.getConfig("akka.event-streams.truststore")).toOption.map { tsConfig =>
 
-  def create(vcap: String, consumerGroup: String, offset: String): Try[Subscriber] = MessageHub.VCAP.parse(vcap).map { vcap => Subscriber(vcap, consumerGroup, offset) }
+  }
 
-  def create(vcap: JsObject, consumerGroup: String): Try[Subscriber] = MessageHub.VCAP.parse(vcap).map { vcap => Subscriber(vcap, consumerGroup) }
+  private val TruststoreLocation: Option[String] = Try {
+    config.getString("akka.event-streams.truststore.location")
+  }.toOption
+
+  def create(vcap: String, consumerGroup: String): Try[Subscriber] =
+    MessageHub.VCAP.parse(vcap).map { vcap => Subscriber(vcap, consumerGroup) }
+
+  def create(vcap: String, consumerGroup: String, offset: String):
+  Try[Subscriber] = MessageHub.VCAP.parse(vcap).map { vcap => Subscriber(vcap, consumerGroup, offset) }
+
+  def create(vcap: String, consumerGroup: String, offset: String, truststoreConfig: TruststoreConfig):
+  Try[Subscriber] = MessageHub.VCAP.parse(vcap).map { vcap => Subscriber(vcap, consumerGroup, offset, truststoreConfig) }
+
+  def create(vcap: JsObject, consumerGroup: String): Try[Subscriber] =
+    MessageHub.VCAP.parse(vcap).map { vcap => Subscriber(vcap, consumerGroup) }
+
+  def create(vcap: JsObject, consumerGroup: String, offset: String): Try[Subscriber] =
+    MessageHub.VCAP.parse(vcap).map { vcap => Subscriber(vcap, consumerGroup, offset) }
+
+  def create(vcap: JsObject, consumerGroup: String, offset: String, truststoreConfig: TruststoreConfig): Try[Subscriber] =
+    MessageHub.VCAP.parse(vcap).map { vcap => Subscriber(vcap, consumerGroup, offset, truststoreConfig) }
+
+  def apply(vcap: MessageHub.VCAP, consumerGroup: String, offset: String, truststoreConfig: TruststoreConfig): Subscriber =
+    Subscriber(vcap.kafka_brokers_sasl, vcap.user, vcap.password, consumerGroup, offset, truststoreConfig)
 
   def apply(vcap: MessageHub.VCAP, consumerGroup: String, offset: String): Subscriber =
     Subscriber(vcap.kafka_brokers_sasl, vcap.user, vcap.password, consumerGroup, offset)
@@ -129,16 +200,20 @@ object Subscriber {
   def apply(vcap: MessageHub.VCAP, consumerGroup: String): Subscriber =
     Subscriber(vcap.kafka_brokers_sasl, vcap.user, vcap.password, consumerGroup)
 
+  def apply(kafkaBrokers: Seq[String], user: String, password: String, consumerGroup: String, offset: String, truststoreConfig: TruststoreConfig): Subscriber =
+    new Subscriber(kafkaBrokers.mkString(","), user, password, consumerGroup, offset, Some(truststoreConfig))
+
   def apply(kafkaBrokers: Seq[String], user: String, password: String, consumerGroup: String, offset: String): Subscriber =
     new Subscriber(kafkaBrokers.mkString(","), user, password, consumerGroup, offset)
 
   def apply(kafkaBrokers: Seq[String], user: String, password: String, consumerGroup: String): Subscriber =
     new Subscriber(kafkaBrokers.mkString(","), user, password, consumerGroup)
 
-  def create(vcap: JsObject, consumerGroup: String, offset: String): Try[Subscriber] = MessageHub.VCAP.parse(vcap).map { vcap => Subscriber(vcap, consumerGroup, offset) }
-
   def apply(kafkaBrokers: String, user: String, password: String, consumerGroup: String): Subscriber =
     new Subscriber(kafkaBrokers, user, password, consumerGroup)
+
+  def withNoOffsetCommit(kafkaBrokers: String, user: String, password: String, consumerGroup: String, offset: String, truststoreConfig: TruststoreConfig): Subscriber =
+    new Subscriber(kafkaBrokers, user, password, consumerGroup, offset, Some(truststoreConfig))
 
   def withNoOffsetCommit(kafkaBrokers: String, user: String, password: String, consumerGroup: String, offset: String): Subscriber =
     new Subscriber(kafkaBrokers, user, password, consumerGroup, offset)
@@ -152,15 +227,20 @@ object Subscriber {
 
 }
 
-class Subscriber(kafkaBrokers: String, user: String, password: String, consumerGroup: String, offset: String = "earliest") {
+class Subscriber(kafkaBrokers: String, user: String, password: String, consumerGroup: String, offset: String = "earliest",
+                 maybeTruststoreConfig: Option[TruststoreConfig] = None) {
 
   private val consumerConfig = KafkaConfigFactory.load().getConfig("akka.kafka.consumer")
   private val logger = LoggerFactory.getLogger(this.getClass)
 
+  private val consumerProperties = TruststoreConfig.properties(maybeTruststoreConfig) ++ Map(
+    SaslConfigs.SASL_JAAS_CONFIG -> MessageHub.createJaasConfigContent(user, password),
+    ConsumerConfig.AUTO_OFFSET_RESET_CONFIG -> offset
+  )
+
   val consumerSettings: ConsumerSettings[String, String] = ConsumerSettings(consumerConfig, new StringDeserializer, new StringDeserializer)
     .withBootstrapServers(kafkaBrokers)
-    .withProperty(SaslConfigs.SASL_JAAS_CONFIG, MessageHub.createJaasConfigContent(user, password))
-    .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, offset)
+    .withProperties(consumerProperties)
     .withGroupId(consumerGroup)
 
   def subscribe(settings: SubscriberSettings, topics: String*)
