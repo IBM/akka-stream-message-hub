@@ -12,7 +12,7 @@ import akka.{Done, NotUsed}
 import com.ibm.analytics.messagehub.Subscriber.SubscriberSettings
 import com.typesafe.config.ConfigFactory
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecord}
-import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
+import org.apache.kafka.clients.producer.{KafkaProducer, Producer => KProducer, ProducerRecord}
 import org.apache.kafka.common.config.{SaslConfigs, SslConfigs}
 import org.apache.kafka.common.serialization.{StringDeserializer, StringSerializer}
 import org.slf4j.LoggerFactory
@@ -111,7 +111,7 @@ class Publisher(kafkaBrokers: String, user: String, password: String, maybeTrust
       .withBootstrapServers(kafkaBrokers)
       .withProperties(producerProperties)
 
-  val kafkaProducer: KafkaProducer[String, String] = producerSettings.createKafkaProducer()
+  val kafkaProducer: KProducer[String, String] = producerSettings.createKafkaProducer()
 
   val producerSink: Sink[ProducerRecord[String, String], Future[Done]] = Producer.plainSink(producerSettings, kafkaProducer)
 

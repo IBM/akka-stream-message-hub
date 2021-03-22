@@ -26,17 +26,17 @@ developers := List(
   )
 )
 
-scalaVersion := "2.11.11"
+scalaVersion := "2.11.12"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.akka" %% "akka-stream" % "2.5.13",
-  "com.typesafe.akka" %% "akka-stream-kafka" % "0.22",
-  "com.typesafe.akka" %% "akka-http" % "10.0.11",
-  "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.11",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0",
+  "com.typesafe.akka" %% "akka-stream" % "2.5.32",
+  "com.typesafe.akka" %% "akka-stream-kafka" % "2.0.7",
+  "com.typesafe.akka" %% "akka-http" % "10.1.14",
+  "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.14",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
 
-  "org.scalatest" %% "scalatest" % "3.0.4" % Test
+  "org.scalatest" %% "scalatest" % "3.2.5" % Test
 )
 
 test in assembly := {}

@@ -1,13 +1,14 @@
 package com.ibm.analytics.messagehub
 
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 import scala.util.{Failure, Success}
 
 /**
   * Created by rbigaj on 10/04/2017.
   */
-class MessageHubVCAPSpec extends WordSpec with Matchers {
+class MessageHubVCAPSpec extends AnyWordSpec with Matchers {
 
   val VALID_VCAP =
     s"""
