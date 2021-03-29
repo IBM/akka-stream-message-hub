@@ -1,22 +1,22 @@
 {
-  "__instance__": "DND--Event Streams Scala tests / Location: Dallas / Account: AIOSTEST (aiostest@us.ibm.com)",
+  "__instance__": "DND-akka-stream-message-hub-tests / Location: Dallas / Account: Rafal Bigaj",
   "api_key": "{{MH_APIKEY}}",
   "apikey": "{{MH_APIKEY}}",
-  "iam_apikey_description": "Auto-generated for key 0a9751c4-1cbf-414b-8fae-f4a00d3e109e",
-  "iam_apikey_name": "Service credentials-1",
-  "iam_role_crn": "crn:v1:bluemix:public:iam::::serviceRole:Writer",
-  "iam_serviceid_crn": "crn:v1:bluemix:public:iam-identity::a/181ed6cc388f47bd9d862fe066f9cfce::serviceid:ServiceId-a8765b23-e4a3-422f-a07f-d45b64719cb1",
-  "instance_id": "d7d32c0b-5001-4dc2-a5ef-018c3c71bc86",
-  "kafka_admin_url": "https://03w5hpsrm9tyqqsr.svc01.us-south.eventstreams.cloud.ibm.com",
+  "iam_apikey_description": "Auto-generated for key 4dd24dbc-5777-4c27-9b51-90f63502e2af",
+  "iam_apikey_name": "DND-akka-stream-message-hub-tests",
+  "iam_role_crn": "crn:v1:bluemix:public:iam::::serviceRole:Manager",
+  "iam_serviceid_crn": "crn:v1:bluemix:public:iam-identity::a/a34b4e9ea7ab66770e048caf83277971::serviceid:ServiceId-165ce58c-a1b2-4573-ab2f-61a8762976c3",
+  "instance_id": "184858b5-4c41-4d4e-a0d1-84a9a5f3180b",
+  "kafka_admin_url": "https://pfy370s16chzl9w7.svc08.us-south.eventstreams.cloud.ibm.com",
   "kafka_brokers_sasl": [
-    "broker-3-03w5hpsrm9tyqqsr.kafka.svc01.us-south.eventstreams.cloud.ibm.com:9093",
-    "broker-0-03w5hpsrm9tyqqsr.kafka.svc01.us-south.eventstreams.cloud.ibm.com:9093",
-    "broker-2-03w5hpsrm9tyqqsr.kafka.svc01.us-south.eventstreams.cloud.ibm.com:9093",
-    "broker-1-03w5hpsrm9tyqqsr.kafka.svc01.us-south.eventstreams.cloud.ibm.com:9093",
-    "broker-5-03w5hpsrm9tyqqsr.kafka.svc01.us-south.eventstreams.cloud.ibm.com:9093",
-    "broker-4-03w5hpsrm9tyqqsr.kafka.svc01.us-south.eventstreams.cloud.ibm.com:9093"
+    "broker-1-pfy370s16chzl9w7.kafka.svc08.us-south.eventstreams.cloud.ibm.com:9093",
+    "broker-2-pfy370s16chzl9w7.kafka.svc08.us-south.eventstreams.cloud.ibm.com:9093",
+    "broker-0-pfy370s16chzl9w7.kafka.svc08.us-south.eventstreams.cloud.ibm.com:9093",
+    "broker-3-pfy370s16chzl9w7.kafka.svc08.us-south.eventstreams.cloud.ibm.com:9093",
+    "broker-5-pfy370s16chzl9w7.kafka.svc08.us-south.eventstreams.cloud.ibm.com:9093",
+    "broker-4-pfy370s16chzl9w7.kafka.svc08.us-south.eventstreams.cloud.ibm.com:9093"
   ],
-  "kafka_http_url": "https://03w5hpsrm9tyqqsr.svc01.us-south.eventstreams.cloud.ibm.com",
+  "kafka_http_url": "https://pfy370s16chzl9w7.svc08.us-south.eventstreams.cloud.ibm.com",
   "password": "{{MH_APIKEY}}",
   "user": "token"
 }

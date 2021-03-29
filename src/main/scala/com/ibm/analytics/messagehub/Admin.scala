@@ -29,10 +29,10 @@ case class GetTopicsError(statusCode: StatusCode, body: String, message: String,
 
 case class DeleteTopicError(statusCode: StatusCode, body: String, message: String, causedBy: Throwable = null) extends Exception(message, causedBy)
 
-case class TopicDetails(name: String, markedForDeletion: Boolean, partitions: Int, retentionMs: Long)
+case class TopicDetails(name: String, partitions: Int, retentionMs: Long)
 
 object TopicDetails extends DefaultJsonProtocol {
-  implicit val format: JsonFormat[TopicDetails] = jsonFormat4(TopicDetails.apply)
+  implicit val format: JsonFormat[TopicDetails] = jsonFormat3(TopicDetails.apply)
 }
 
 object Admin {
